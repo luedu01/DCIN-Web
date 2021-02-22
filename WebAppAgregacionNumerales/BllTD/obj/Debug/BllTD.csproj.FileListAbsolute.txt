@@ -1,0 +1,17 @@
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\BllTD.dll
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\BllTD.pdb
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\BIDAL.dll
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\EntitiesTD.dll
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\Teradata.Client.Provider.dll
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\Teradata.Net.Security.Tdgss.dll
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\BIDAL.pdb
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\BIDAL.dll.config
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\EntitiesTD.pdb
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\EntitiesTD.dll.config
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\Teradata.Client.Provider.xml
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\ja\Teradata.Client.Provider.resources.dll
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\bin\Debug\ja\Teradata.Net.Security.Tdgss.resources.dll
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\obj\Debug\BllTD.csprojAssemblyReference.cache
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\obj\Debug\BllTD.csproj.CopyComplete
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\obj\Debug\BllTD.dll
+C:\GitHub\Proyectos\DCIN-Web\WebAppAgregacionNumerales\BllTD\obj\Debug\BllTD.pdb

@@ -1,0 +1,23 @@
+{
+    "menu": {
+      "Name": "Inicio",
+      "Order": 1,
+      "Path": "",
+      "Text": "Inicio",
+      "Filter": null,
+      "Childs": [
+        {
+          "Name": "Administrar de Estructura",
+          "Order": 1,
+          "Path": "/estructura",
+          "Text": "build",
+          "Filter": null,
+          "Childs": []
+        }
+      ]
+    },
+    "perfil": "Usuario",
+    "area": [
+        {"area":  ""}
+    ]
+}
