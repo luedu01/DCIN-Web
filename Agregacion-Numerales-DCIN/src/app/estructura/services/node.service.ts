@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, ɵConsole } from '@angular/core';
 import { TdDialogService } from '@covalent/core/dialogs';
 import { BehaviorSubject } from 'rxjs';
 
@@ -7,7 +7,7 @@ import { BehaviorSubject } from 'rxjs';
  * Node for to-do name
  */
 export class ItemNode {
-  children: ItemNode[];
+  children?: ItemNode[];
   name: string;
   idNode: number;
 }
@@ -27,6 +27,7 @@ export class ItemFlatNode {
   cbEliminado?: boolean;
   fechaEliminado?: string;
   Sk_NodoContable?: number;
+  orden?: number;
 }
 
 /**
@@ -49,45 +50,44 @@ export class ChecklistDatabase {
   }
 
   /** Add an item to to-do list */
-  insertItem(parent: ItemNode, name: string): ItemNode {
-    //console.log("insertItem", parent, name);
+  insertItem(parent: ItemNode, newItem: ItemNode): ItemNode {
     if (!parent.children) {
       parent.children = [];
     }
-    const newItem = { name: name } as ItemNode;
+
     parent.children.push(newItem);
     this.dataChange.next(this.data);
     return newItem;
   }
 
-  insertItemAbove(node: ItemNode, name: string): ItemNode {
-    //console.log("insertItemAbove", node, name);
+  insertItemAbove(node: ItemNode, newItem: ItemNode): ItemNode {
+
     const parentNode = this.getParentFromNodes(node);
-    const newItem = { name: name } as ItemNode;
+
     if (parentNode != null) {
-      parentNode.children.splice(parentNode.children.indexOf(node), 0, newItem);
+      parentNode.children.splice(parentNode.children.indexOf(node), 0, { name: newItem.name, idNode: newItem.idNode, children: newItem.children } as ItemNode);
     } else {
-      this.data.splice(this.data.indexOf(node), 0, newItem);
+      this.data.splice(this.data.indexOf(node), 0, { name: newItem.name, idNode: newItem.idNode, children: newItem.children } as ItemNode);
     }
     this.dataChange.next(this.data);
     return newItem;
   }
 
-  insertItemBelow(node: ItemNode, name: string): ItemNode {
-    //console.log("insertItemBelow", node, name);
+  insertItemBelow(node: ItemNode, newItem: ItemNode): ItemNode {
+
     const parentNode = this.getParentFromNodes(node);
-    const newItem = { name: name } as ItemNode;
+
     if (parentNode != null) {
-      parentNode.children.splice(parentNode.children.indexOf(node) + 1, 0, newItem);
+      parentNode.children.splice(parentNode.children.indexOf(node) + 1, 0, { name: newItem.name, idNode: newItem.idNode, children: newItem.children } as ItemNode);
     } else {
-      this.data.splice(this.data.indexOf(node) + 1, 0, newItem);
+      this.data.splice(this.data.indexOf(node) + 1, 0, { name: newItem.name, idNode: newItem.idNode, children: newItem.children } as ItemNode);
     }
     this.dataChange.next(this.data);
     return newItem;
   }
 
   getParentFromNodes(node: ItemNode): ItemNode {
-    //console.log("getParentFromNodes", node);
+
     for (let i = 0; i < this.data.length; ++i) {
       const currentRoot = this.data[i];
       const parent = this.getParent(currentRoot, node);
@@ -99,11 +99,11 @@ export class ChecklistDatabase {
   }
 
   getParent(currentRoot: ItemNode, node: ItemNode): ItemNode {
-    //console.log("getParent", currentRoot, node);
+
     if (currentRoot.children && currentRoot.children.length > 0) {
       for (let i = 0; i < currentRoot.children.length; ++i) {
         const child = currentRoot.children[i];
-        if (child === node) {
+        if ((child.idNode == node.idNode && child.name == node.name)) {
           return currentRoot;
         } else if (child.children && child.children.length > 0) {
           const parent = this.getParent(child, node);
@@ -117,32 +117,53 @@ export class ChecklistDatabase {
   }
 
   updateItem(node: ItemNode, name: string) {
-    //console.log("updateItem", node, name);
+
     node.name = name;
     this.dataChange.next(this.data);
   }
 
   deleteItem(node: ItemNode) {
-    //console.log("deleteItem", node);
+
     this.deleteNode(this.data, node);
     this.dataChange.next(this.data);
   }
 
   copyPasteItem(from: ItemNode, to: ItemNode): ItemNode {
-    //console.log("copyPasteItem", from, to);
-    const newItem = this.insertItem(to, from.name);
+
+    const newItem = this.insertItem(to, from);
+
+   
     if (from.children) {
       from.children.forEach(child => {
-        this.copyPasteItem(child, newItem);
+        if (!this.existChild(child, newItem.children)) {
+          this.copyPasteItem(child, newItem);
+        }
+
       });
     }
     return newItem;
   }
 
+  existChild(child: ItemNode, children: ItemNode[]): boolean {
+    let result = false;
+    if (children && children.length > 0) {
+      for (let i = 0; i < children.length; i++) {
+        let element: ItemNode = children[i];
+
+        if (element.idNode == child.idNode && element.name == child.name) {
+          result = true;
+          break;
+        }
+      }
+
+    }
+    return result;
+  }
   copyPasteItemAbove(from: ItemNode, to: ItemNode): ItemNode {
-    //console.log("copyPasteItemAbove", from, to);
-    const newItem = this.insertItemAbove(to, from.name);
+
+    const newItem = this.insertItemAbove(to, from);
     if (from.children) {
+      newItem.children = [];
       from.children.forEach(child => {
         this.copyPasteItem(child, newItem);
       });
@@ -151,9 +172,11 @@ export class ChecklistDatabase {
   }
 
   copyPasteItemBelow(from: ItemNode, to: ItemNode): ItemNode {
-    //console.log("copyPasteItemBelow", from, to);
-    const newItem = this.insertItemBelow(to, from.name);
+
+    const newItem = this.insertItemBelow(to, from);
+
     if (from.children) {
+      newItem.children = [];
       from.children.forEach(child => {
         this.copyPasteItem(child, newItem);
       });
@@ -162,7 +185,7 @@ export class ChecklistDatabase {
   }
 
   deleteNode(nodes: ItemNode[], nodeToDelete: ItemNode) {
-    //console.log("deleteNode", nodes, nodeToDelete);
+    
     const index = nodes.indexOf(nodeToDelete, 0);
     if (index > -1) {
       nodes.splice(index, 1);

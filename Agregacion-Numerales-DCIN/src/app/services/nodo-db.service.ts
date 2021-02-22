@@ -18,13 +18,13 @@ const URL_BASE = MOCK_API + '/ResultadoNodo';
 })
 
 
-export class NodoDBService extends mixinHttp(class {
-  list: ItemFlatNode[];
-}, {
-
-  baseUrl: MOCK_API,
-  baseHeaders: new HttpHeaders({ 'Accept': 'application/json' }),
-}, HttpClient) {
+export class NodoDBService extends mixinHttp(
+  class { list: ItemFlatNode[]; },
+  {
+    baseUrl: MOCK_API,
+    baseHeaders: new HttpHeaders({ 'Accept': 'application/json' }),
+  },
+  HttpClient) {
 
   constructor(private http: HttpClient) {
     super(http, {
@@ -42,7 +42,6 @@ export class NodoDBService extends mixinHttp(class {
         }),
       );
   }
-
 }
 
 

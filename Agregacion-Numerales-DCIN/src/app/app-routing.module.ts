@@ -32,6 +32,11 @@ const routes: Routes = [
         path: 'estructura',
         loadChildren: () => import('./estructura/estructura.module').then(m => m.EstructuraModule)
       },
+      {
+        path: 'consultas',
+        loadChildren: () => import('./consultas/consultas.module').then(m => m.ConsultasModule)
+      },
+      
     ]
   }
 ];

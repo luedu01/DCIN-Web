@@ -6,24 +6,29 @@
         <span>Parametrización de Estructura</span>
         <span flex></span>
     </div>
+    <div td-toolbar-content layout="row" layout-align="right">
+        <span style="color: white;"> Agregación de Numerales - DCIN</span>
+        <span flex></span>
+    </div>
     <mat-card class="push-bottom-xxl" tdMediaToggle="gt-xs" [mediaClasses]="['push']">
         <ng-template tdLoading="estructura.form">
             <form #estructuraForm="ngForm">
                 <td-steps mode="horizontal" linear="true">
-                    <td-step #step1 label="Estructura" sublabel="Datos Básicos" [state]="stateStep1" [active]="true">
+                    <td-step #step1 label="Estructura" sublabel="Datos Básicos"  [state]="stateStep1" [active]="true">
                         <mat-card flex-gt-sm>
-                            <mat-card-title>Agregue los datos básicos</mat-card-title>
+                            <mat-card-title>Agregar los datos básicos</mat-card-title>
                             <mat-card-content class="push-bottom-none">
-
+ 
                                 <div layout="row">
                                     <mat-form-field flex>
                                         <input matInput #Desc_EstructuraElement #Desc_EstructuraControl="ngModel"
-                                            type="text" placeholder="Nombre" [(ngModel)]="Desc_Estructura"
+                                            type="text" placeholder="Nombre" pattern="^[a-zA-zÀ-ÿ-Z0-9 _.,]*$" [(ngModel)]="Desc_Estructura"
                                             name="Desc_Estructura" maxlength="100" required (blur)="updateArborl()">
                                         <mat-hint align="start">
                                             <span [hidden]="Desc_EstructuraControl.pristine" class="tc-red-600">
-                                                <span
-                                                    [hidden]="!Desc_EstructuraControl.hasError('required')">Requerido</span>
+                                                <span [hidden]="!Desc_EstructuraControl.hasError('required')">Requerido</span>
+                                         <span [hidden]="!Desc_EstructuraControl.hasError('pattern')">No se permiten caracteres
+                                                        especiales</span>
                                             </span>
                                         </mat-hint>
                                         <mat-hint align="end">{{Desc_EstructuraElement.value.length}} / 200</mat-hint>
@@ -39,6 +44,8 @@
                                                 format="dd/MM/yyyy">
                                             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                                             <mat-datepicker #picker></mat-datepicker>
+                                            <span
+                                            [hidden]="!Fecha_InicioVigenciaControl.hasError('required')">Requerido</span>
                                         </mat-form-field>
                                     </div>
 
@@ -69,6 +76,7 @@
                                 matStepperNext
                                 (click)="toggleCompleteStep1();step2.disabled = disabled; step2.active = true;">Siguiente
                             </button>
+                            <button mat-button (click)="goBack()">Salir sin Guardar</button>
                         </ng-template>
                     </td-step>
 
@@ -160,24 +168,125 @@
                                 (click)="toggleCompleteStep2(); step1.active = true;">Anterior
                             </button>
                             <button mat-raised-button [disabled]="!estructuraForm.form.valid" color="accent"
-                                (click)="toggleCompleteStep2();step3.disabled = disabled; step3.active = true; configurarGrafica();">Siguiente
+                                (click)="toggleCompleteStep2(); step3.disabled = disabled; step3.active = true; prepareData();">Siguiente
                             </button>
+                            <button mat-button (click)="goBack()">Salir sin Guardar</button>
                         </ng-template>
                     </td-step>
+                    <td-step #step3 label="Resumen" sublabel="Resumen de la Estructura" [state]="stateStep3"
+                        [disabled]="enable">
+                        <mat-card flex-gt-sm>
 
-                    <td-step #step3 label="Resumen" sublabel="Resumén de la Estructura" [state]="stateStep3"
+                            <div layout-gt-sm="column2">
+                                <mat-card flex-gt-sm>
+                                    <mat-card-title>Estructura</mat-card-title>
+                                    <mat-card-content class="push-bottom-none">
+
+                                        <div layout="row">
+                                            <mat-form-field flex>
+                                                <input matInput #Nombre_EstructuraResumeElement
+                                                    #Nombre_EstructuraResumeControl="ngModel" type="text"
+                                                    placeholder="Nombre de la Estructura" [(ngModel)]="Desc_Estructura"
+                                                    name="Nombre_EstructuraResume" maxlength="30" [disabled]="true">
+                                            </mat-form-field>
+                                        </div>
+                                        <div layout-gt-sm="column2">
+                                            <div flex>
+                                                <mat-form-field flex>
+                                                    <input #Fecha_InicioVigenciaResumeElement [disabled]="true"
+                                                        #Fecha_InicioVigenciaResumenControl="ngModel"
+                                                        name="Fecha_InicioVigenciaResume" matInput
+                                                        [matDatepicker]="pickerResume"
+                                                        placeholder="Fecha Inicio Vigencia"
+                                                        [(ngModel)]="Fecha_InicioVigencia" format="dd/MM/yyyy">
+                                                    <mat-datepicker-toggle matSuffix [for]="pickerResume">
+                                                    </mat-datepicker-toggle>
+                                                    <mat-datepicker #pickerResume></mat-datepicker>
+                                                </mat-form-field>
+                                            </div>
+
+                                            <div flex>
+                                                <mat-form-field>
+                                                    <input #Fecha_FinVigenciaResumeElement [disabled]="true"
+                                                        #Fecha_FinVigenciaResumeControl="ngModel"
+                                                        name="Fecha_FinVigenciaResume" matInput
+                                                        placeholder="Fecha Fin Vigencia" [(ngModel)]="Fecha_FinVigencia"
+                                                        [matDatepicker]="pickerResume2" format="dd/MM/yyyy">
+                                                    <mat-datepicker-toggle matSuffix [for]="pickerResume2">
+                                                    </mat-datepicker-toggle>
+                                                    <mat-datepicker #pickerResume2></mat-datepicker>
+
+                                                </mat-form-field>
+                                            </div>
+
+                                        </div>
+
+                                        <div layout="row" class="push-top">
+                                            <mat-slide-toggle #Cb_EsDefinitivaResumeElement
+                                                #Cb_EsDefinitivaResumeControl [(ngModel)]="Cb_EsDefinitiva2"
+                                                name="Cb_EsDefinitivaResume" [disabled]="true">
+                                                Es definitiva
+                                            </mat-slide-toggle>
+                                        </div>
+
+                                    </mat-card-content>
+                                    <mat-divider></mat-divider>
+
+                                    <mat-card-title>Nodos</mat-card-title>
+                                    <div class="pad" *ngIf="levelInfo?.length === 0" layout="row"
+                                        layout-align="center center">
+                                        <h3>No existen Nodos agregados a la Estructura.</h3>
+                                    </div>
+                                    <mat-divider></mat-divider>
+                                    <mat-nav-list class="will-load item-list">
+
+                                        <ng-template let-item let-last="last" ngFor [ngForOf]="levelInfo">
+                                            <a mat-list-item layout-align="row">
+                                                <mat-icon matListAvatar> storage </mat-icon>
+                                                <span class="mat-caption"><b>Número de nodos de
+                                                        nivel({{item.level }}):</b>
+
+                                                </span>
+                                                <span class="mat-caption" flex>
+                                                    {{item.count }} </span>
+                                            </a>
+
+
+                                            <mat-divider *ngIf="!last" [inset]="true"></mat-divider>
+                                        </ng-template>
+                                    </mat-nav-list>
+
+                                </mat-card>
+
+
+                            </div>
+
+                        </mat-card>
+
+                        <ng-template td-step-actions>
+                            <button mat-raised-button color="primary"
+                                (click)="toggleCompleteStep3();step2.disabled = disabled; step2.active = true;">Anterior
+                            </button>
+                            <button mat-raised-button
+                                [disabled]="!estructuraForm.form.valid || !estructuraForm.form.hasError" color="accent"
+                                (click)="configurarGrafica();toggleCompleteStep3();step4.disabled = disabled; step4.active = true;">Siguiente
+                            </button>
+                            <button mat-button (click)="goBack()">Salir sin Guardar</button>
+                        </ng-template>
+                    </td-step>
+                    <td-step #step4 label="Resumen" sublabel="Gráfica de la Estructura" [state]="stateStep4"
                         [disabled]="enable">
                         <td-chart [style.height.px]="800">
-                            <td-chart-series td-tree [top]="'10%'" [left]="'5%'" [bottom]="'10%'" [right]="'20%'"
+                            <td-chart-series td-tree [top]="'10%'" [left]="'10%'" [bottom]="'10%'" [right]="'20%'"
                                 [data]='data' [initialTreeDepth]="2" [symbolSize]="10"
-                                [leaves]="{ label: { padding: [2.5, 5], fontSize: 9, distance: 5, position: 'right' }}"
-                                [label]="{ padding: [2.5, 5], borderRadius: 10, fontSize: 9, distance: 10, position: 'top' }">
+                                [leaves]="{ label: { padding: [2.5, 5], fontSize: 8, distance: 1, position: 'top' }}"
+                                [label]="{ padding: [2.5, 5], borderRadius: 10, fontSize: 8, distance: 1, position: 'top' }">
                             </td-chart-series>
                         </td-chart>
 
                         <ng-template td-step-actions>
                             <button mat-raised-button color="primary"
-                                (click)="toggleCompleteStep3(); step2.active = true;">Anterior
+                                (click)="toggleCompleteStep4(); step3.active = true;">Anterior
                             </button>
                             <button mat-raised-button
                                 [disabled]="!estructuraForm.form.valid || !estructuraForm.form.hasError" color="accent"

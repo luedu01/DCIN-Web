@@ -5,6 +5,7 @@ import { TdDialogService } from '@covalent/core/dialogs';
 import { TdLoadingService } from '@covalent/core/loading';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { from } from 'rxjs';
+import { MatSelectFilterModule } from 'mat-select-filter';
 import { ItemNode, ChecklistDatabase, ItemFlatNode } from '../services/node.service';
 import { NumeralcambiarioService, INumeral } from '../../services/numeralcambiario.service';
 
@@ -17,6 +18,7 @@ export interface NodeData {
   formulacion: Formulacion[];
   accionEstructura: string;
   Nodos?: ItemFlatNode[];
+  nodeToEdit: ItemFlatNode;
 }
 
 export interface Numeral {
@@ -60,7 +62,7 @@ export class NodeFormComponent implements OnInit {
   Cb_Eliminado: string;
   Fecha_Eliminado: Date;
   Nombre_UsuarioEliminacion: string;
-  Nodos: ItemFlatNode[];
+  Nodos: ItemFlatNode[] = [];
 
   Sk_RCNumeralCambiario: number;
   idnumeralcco: string;
@@ -82,6 +84,7 @@ export class NodeFormComponent implements OnInit {
   ];
 
   nodoForm: FormGroup;
+  nodeToEdit: ItemFlatNode;
 
   constructor(
     private _loadingService: TdLoadingService,
@@ -96,10 +99,15 @@ export class NodeFormComponent implements OnInit {
     this.Desc_NodoContableAnt = data.Desc_NodoContable;
     this.Id_NodoContable = data.Id_NodoContable;
     this.Sk_RCNumeralCambiario = data.Sk_RCNumeralCambiario;
-    this.data.idnumeralcco = "0";
     this.idnumeralcco = data.idnumeralcco;
-
     this.Nodos = data.Nodos;
+
+    if(data.nodeToEdit) {
+      this.Desc_NodoContable = data.nodeToEdit.name;
+      this.Id_NodoContable = data.nodeToEdit.Id_NodoContable;
+      this.Sk_RCNumeralCambiario = data.nodeToEdit.Sk_RCNumeralCambiario;
+      this.idnumeralcco = data.nodeToEdit.idnumeralcco;
+    }
 
     if (data.formulacion && data.formulacion.length > 0 && this.data.childs && this.data.childs.length > 0) {
       this.formulacion = data.formulacion;
@@ -127,44 +135,71 @@ export class NodeFormComponent implements OnInit {
   }
 
   async save(): Promise<void> {
-    let datos: NodeData = {
-      Desc_NodoContable: this.data.Desc_NodoContable,
-      Id_NodoContable: this.data.Id_NodoContable,
-      childs: this.data.childs,
-      formulacion: this.data.formulacion,
-      idnumeralcco: this.data.idnumeralcco,
-      Sk_RCNumeralCambiario: this.data.Sk_RCNumeralCambiario,
-      accionEstructura: this.data.accionEstructura
-    }
 
-    if (this.accionEstructura == 'Crear' || (datos.Desc_NodoContable != this.Desc_NodoContableAnt)) {
+    let cloneData = { ...this.data }
+    const { Nodos, ...datos } = cloneData;
+
+   
+
+    if (this.accionEstructura == 'Crear') {
+    
+      if (this.Nodos.some(f=>f.Id_NodoContable==datos.Id_NodoContable)) {
+
+        this._snackBarService.open('Ya existe un nodo con Id_NodoContable: ' + this.data.Id_NodoContable , 'Ok', { duration: 3000 });
+        return;
+        
+      }
+
+
       if (this.exist()) {
         this._snackBarService.open('Ya existe un nodo con Id_NodoContable: ' + this.data.Id_NodoContable + ' y Desc_NodoContable: ' + this.data.Desc_NodoContable + ', en esta estructura.', 'Ok', { duration: 3000 });
+        return;
       } else {
         this.dialogRef.close(datos);
       }
-    } else {
-      this.dialogRef.close(datos);
+
+    } if (this.accionEstructura == 'Editar') {
+
+      const nodo = this.Nodos.find(f => f.Id_NodoContable === datos.Id_NodoContable)
+
+      if (this.existDuplicate(datos.Id_NodoContable, datos.Desc_NodoContable)) {
+        this._snackBarService.open('Ya existe un nodo con Desc_NodoContable: ' + this.data.Desc_NodoContable + ', en esta estructura.', 'Ok', { duration: 3000 });
+        return;
+      }
+
+
+      if (nodo) {
+        nodo.Desc_NodoContablePadre = datos.Desc_NodoContable;
+        nodo.Sk_RCNumeralCambiario = datos.Sk_RCNumeralCambiario;
+        nodo.idnumeralcco = datos.idnumeralcco;
+        this.dialogRef.close(datos);
+      }
     }
+    else {
 
+      const nodo = this.Nodos.find(f => f.Id_NodoContable === datos.Id_NodoContable)
 
-
+      if (this.existDuplicate(datos.Id_NodoContable, datos.Desc_NodoContable)) {
+        this._snackBarService.open('Ya existe un nodo con Desc_NodoContable: ' + this.data.Desc_NodoContable + ', en esta estructura.', 'Ok', { duration: 3000 });
+        return;
+      } else {
+        this.dialogRef.close(datos);
+      }
+    }
   }
 
   exist(): boolean {
-    let result = false;
-
-    if (this.Nodos && this.Nodos.length > 0) {
-      for (let i = 0; i < this.Nodos.length; i++) {
-        let nodo = this.Nodos[i];
-        if (this.data.Id_NodoContable == nodo.Id_NodoContable && this.data.Desc_NodoContable == nodo.name) {
-          result = true;
-          break;
-        }
-      }
-    }
-    return result;
+    return (this.Nodos || []).some(nodo => {
+      
+      return this.data.Id_NodoContable === nodo.Id_NodoContable || this.data.Desc_NodoContable === nodo.name
+    });
   }
+
+  existDuplicate = (id: number, name: string) =>
+    (this.Nodos || []).some(s => s.name === name && s.Id_NodoContable !== id);
+
+  existDuplicatesIds = (id: number) => 
+    (this.Nodos || []).filter(f => f.Id_NodoContable === id).length > 1 
 
   organizarFormulacion(): void {
     let formulacion: Formulacion[] = [];
@@ -202,7 +237,7 @@ export class NodeFormComponent implements OnInit {
       Signo: signo,
       Id_NodoContable: nodo.idNode
     }
-
+    this.formulacion = this.formulacion.filter(item=>item.Id_NodoContable != nodo.idNode);
     this.formulacion.push(formulacion);
     this.data.formulacion = this.formulacion;
   }

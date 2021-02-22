@@ -1,9 +1,12 @@
+import { MOCK_API } from './../config/api.config';
+import { MatTableModule } from '@angular/material/table';
 import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule, Title }  from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,6 +18,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableFilterModule } from 'mat-table-filter';
+import { MatTableExporterModule } from 'mat-table-exporter';
+
 
 import { CovalentCommonModule } from '@covalent/core/common';
 import { CovalentLayoutModule } from '@covalent/core/layout';
@@ -41,7 +46,6 @@ import { RequestInterceptor } from '../config/interceptors/request.interceptors'
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MainComponent } from './main.component';
-import { MOCK_API } from 'src/config/api.config';
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 
@@ -83,6 +87,9 @@ export function getAPI(): string {
     MatMenuModule,
     MatSnackBarModule,
     MatTableFilterModule,
+    MatTableModule,
+    MatTableExporterModule,
+    
     // covalent modules
     CovalentCommonModule,
     CovalentLayoutModule,

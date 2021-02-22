@@ -7,7 +7,7 @@
           <mat-form-field flex>
             <input matInput #Desc_NodoContableElement #Desc_NodoContableControl="ngModel" type="text" required
               placeholder="Descripcion" name="Desc_NodoContable" minlength="3" maxlength="100"
-              pattern="^[a-zA-Z0-9 _]*$" [(ngModel)]="data.Desc_NodoContable" #name="ngModel">
+              pattern="^[a-zA-zÀ-ÿ-Z0-9 _.,]*$" [(ngModel)]="data.Desc_NodoContable" #name="ngModel">
 
             <mat-hint align="start">
               <span [hidden]="Desc_NodoContableControl.pristine" class="tc-red-600">
@@ -20,7 +20,7 @@
           </mat-form-field>
         </div>
         <div layout="row">
-          <mat-form-field flex>
+          <mat-form-field flex *ngIf="false">
             <input matInput #Id_NodoContableElement #Id_NodoContableControl="ngModel" type="tel" required
               placeholder="Id Nodo contable" name="Id_NodoContable" min="1" max="9999" pattern="^(?!(0))[0-9]*$"
               maxlength="4" [disabled]="data.accionEstructura ==='Editar' && data.Id_NodoContable"
@@ -53,7 +53,7 @@
             <mat-label>Numerales CCO</mat-label>
             <mat-select [(ngModel)]="data.idnumeralcco" name="idnumeralcco" required #idnumeralcco="ngModel">
               <mat-option [value]="'0'">No Aplica</mat-option>
-              <mat-option *ngFor="let cco of ArrayNumeralesCCO" [value]="cco.Sk_RCNumeralCambiario">
+             <mat-option *ngFor="let cco of ArrayNumeralesSAF" [value]="cco.Sk_RCNumeralCambiario">
                 {{cco.Desc_NumeralCambiario}}
               </mat-option>
             </mat-select>

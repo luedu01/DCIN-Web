@@ -18,6 +18,7 @@ import { Observable } from 'rxjs';
 import { NodoDBService } from 'src/app/services/nodo-db.service';
 
 
+
 export interface Formulacion {
   Nodo: string;
   Signo: string;
@@ -30,7 +31,7 @@ const CREAR_NODO = 'Crear';
 const EDITAR_NODO = 'Editar';
 
 const TREE_DATA: ItemFlatNode[] = [{
-  Id_NodoContable: 1,
+  Id_NodoContable: 0,
   name: "nodo 1",
   Id_NodoContablePadre: null,
   level: 0,
@@ -42,60 +43,65 @@ const TREE_DATA: ItemFlatNode[] = [{
 
 },
 {
-  Id_NodoContable: 2,
-  name: "nodo 2",
-  Id_NodoContablePadre: 1,
+  Id_NodoContable: 1,
+  name: "nivel1",
+  Id_NodoContablePadre: 0,
   level: 1,
   childs: null,
   formulacion: null,
   idnumeralcco: "0",
-  Sk_RCNumeralCambiario: 0,
+  Sk_RCNumeralCambiario: 1,
   expandable: null
 
 },
 {
+  Id_NodoContable: 2,
+  name: "nivel2",
+  Id_NodoContablePadre: 1,
+  level: 2,
+  childs: null,
+  formulacion: null,
+  idnumeralcco: "0",
+  Sk_RCNumeralCambiario: 2,
+  expandable: null,
+  Desc_NodoContablePadre: "nivel1"
+},
+{
   Id_NodoContable: 3,
-  name: "hijo 2-3",
+  name: "nivel3",
   Id_NodoContablePadre: 2,
-  level: 2,
+  level: 3,
   childs: null,
   formulacion: null,
   idnumeralcco: "0",
-  Sk_RCNumeralCambiario: 0,
-  expandable: null
+  Sk_RCNumeralCambiario: 3,
+  expandable: null,
+  Desc_NodoContablePadre: "nivel2"
 },
 {
-  Id_NodoContable: 5,
-  name: "hijo 2-5",
+  Id_NodoContable: 32,
+  name: "nivel32",
   Id_NodoContablePadre: 2,
-  level: 2,
+  level: 3,
   childs: null,
   formulacion: null,
   idnumeralcco: "0",
-  Sk_RCNumeralCambiario: 0,
-  expandable: null
-},
-{
-  Id_NodoContable: 6,
-  name: "hijo 2-6",
-  Id_NodoContablePadre: 2,
-  level: 2,
-  childs: null,
-  formulacion: null,
-  idnumeralcco: "0",
-  Sk_RCNumeralCambiario: 0,
-  expandable: null
+  Sk_RCNumeralCambiario: 32,
+  expandable: null,
+  Desc_NodoContablePadre: "nivel2"
 }, {
-  Id_NodoContable: 7,
-  name: "hijo 2-7",
+  Id_NodoContable: 33,
+  name: "nivel33",
   Id_NodoContablePadre: 2,
-  level: 2,
+  level: 3,
   childs: null,
   formulacion: null,
   idnumeralcco: "0",
-  Sk_RCNumeralCambiario: 0,
-  expandable: null
-},
+  Sk_RCNumeralCambiario: 33,
+  expandable: null,
+  Desc_NodoContablePadre: "nivel2"
+
+}/*,
 {
   Id_NodoContable: 4,
   name: "hijo 7-4",
@@ -129,7 +135,7 @@ const TREE_DATA: ItemFlatNode[] = [{
   Sk_RCNumeralCambiario: 0,
   expandable: null
 
-}]
+}*/]
   ;
 
 
@@ -153,14 +159,15 @@ export class EstructuraFormComponent implements OnInit {
   Cb_Eliminado: string;
   Nombre_UsuarioEliminacion: string;
   Fecha_Creacion: string;
-
+  levelInfo = [];
   estructura: IEstructura;
   action: string;
   Cb_EsDefinitiva2: boolean;
 
-  stateStep1: StepState = StepState.Required;
+  stateStep1: StepState = StepState.None;
   stateStep2: StepState = StepState.None;
   stateStep3: StepState = StepState.None;
+  stateStep4: StepState = StepState.None;
 
   disabled: boolean = false;
   enable: boolean = true;
@@ -311,6 +318,7 @@ export class EstructuraFormComponent implements OnInit {
   * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
   */
   transformer = (node: ItemNode, level: number) => {
+
     let existingNode = this.nestedNodeMap.get(node);
 
     if (existingNode && (!existingNode.Id_NodoContable || existingNode.Id_NodoContable == 0
@@ -324,7 +332,7 @@ export class EstructuraFormComponent implements OnInit {
       }
     }
 
-    // console.log("existing despue", existingNode);
+
     const flatNode = existingNode && existingNode.name === node.name && existingNode.Id_NodoContable == node.idNode
       ? existingNode
       : new ItemFlatNode();
@@ -338,15 +346,15 @@ export class EstructuraFormComponent implements OnInit {
       flatNode.idnumeralcco = existingNode.idnumeralcco ? existingNode.idnumeralcco : "0";
       flatNode.formulacion = existingNode.formulacion ? existingNode.formulacion : [];
       flatNode.Desc_NodoContablePadre = existingNode.Desc_NodoContablePadre;
+      flatNode.orden = existingNode.orden;
     }
-    // console.log("flat node", flatNode);
+
     flatNode.expandable = (node.children && node.children.length > 0);
 
     if ((!node.idNode || node.idNode == 0) && (flatNode.Id_NodoContable && flatNode.Id_NodoContable > 0)) {
       node.idNode = flatNode.Id_NodoContable;
     }
-    // console.log("node", node);
-    //console.log("flatNode", flatNode);
+
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
@@ -379,7 +387,7 @@ export class EstructuraFormComponent implements OnInit {
 
     const parentNode = this.flatNodeMap.get(node);
 
-    let nodenew = this.database.insertItem(parentNode, '');
+    let nodenew = this.database.insertItem(parentNode, { name: '' } as ItemNode);
     this.treeControl.expand(node);
     let nodeIFN = this.nestedNodeMap.get(nodenew);
 
@@ -395,6 +403,7 @@ export class EstructuraFormComponent implements OnInit {
   }
 
   handleDragStart(event, node) {
+
     event.dataTransfer.setData('foo', 'bar');
     event.dataTransfer.setDragImage(this.emptyItem.nativeElement, 0, 0);
     this.dragNode = node;
@@ -402,6 +411,7 @@ export class EstructuraFormComponent implements OnInit {
   }
 
   handleDragOver(event, node) {
+
     event.preventDefault();
     // Handle node expand
     if (node === this.dragNodeExpandOverNode) {
@@ -418,28 +428,43 @@ export class EstructuraFormComponent implements OnInit {
     // Handle drag area
     const percentageX = event.offsetX / event.target.clientWidth;
     const percentageY = event.offsetY / event.target.clientHeight;
-    if (percentageY < 0.25) {
+
+    if (percentageX < 0.25) {
       this.dragNodeExpandOverArea = 'above';
-    } else if (percentageY > 0.75) {
+    } else if (percentageX > 0.75) {
       this.dragNodeExpandOverArea = 'below';
     } else {
       this.dragNodeExpandOverArea = 'center';
     }
+
   }
 
   handleDrop(event, node) {
     event.preventDefault();
     let nodoamover: ItemFlatNode;
-    let nodoItemNode: ItemNode = this.dragNode;
-    this.dataSource._expandedData.forEach(n => {
-      nodoamover = n.find(h => h.name == nodoItemNode.name)
+    let nodoItemNode: ItemFlatNode = this.dragNode;
+    this.dataSource._flattenedData.forEach(n => {
+      nodoamover = n.find(h => {
+        return (h.name == nodoItemNode.name && h.Id_NodoContable == nodoItemNode.Id_NodoContable);
+      })
     });
 
-    let Id_NodoContable = nodoamover.Id_NodoContable;
-    let formulacion = nodoamover.formulacion;
-    let name = nodoamover.name;
-    let idnumeralcco = nodoamover.idnumeralcco;
-    let Sk_RCNumeralCambiario = nodoamover.Sk_RCNumeralCambiario;
+    let Id_NodoContable;
+    let formulacion;
+    let name;
+    let idnumeralcco;
+    let Sk_RCNumeralCambiario;
+    let Desc_NodoContablePadre;
+
+    if (nodoamover) {
+      Id_NodoContable = nodoamover.Id_NodoContable;
+      formulacion = nodoamover.formulacion;
+      name = nodoamover.name;
+      idnumeralcco = nodoamover.idnumeralcco;
+      Sk_RCNumeralCambiario = nodoamover.Sk_RCNumeralCambiario;
+      Desc_NodoContablePadre = nodoamover.Desc_NodoContablePadre;
+
+    }
 
     if (node !== this.dragNode) {
       let newItem: ItemNode;
@@ -452,13 +477,14 @@ export class EstructuraFormComponent implements OnInit {
       }
 
       let nodoNew: ItemFlatNode;
-      this.dataSource._expandedData.forEach(n => {
-        nodoNew = n.find(h => h.name == newItem.name)
+      this.dataSource._flattenedData.forEach(n => {
+        nodoNew = n.find(h => h.name == newItem.name && h.Id_NodoContable == newItem.idNode)
       });
 
       this.database.deleteItem(this.flatNodeMap.get(this.dragNode));
 
       const parentNode = this.database.getParentFromNodes(newItem);
+
       let nodoPadre = this.nestedNodeMap.get(parentNode);
 
       nodoNew.Id_NodoContable = Id_NodoContable;
@@ -466,6 +492,8 @@ export class EstructuraFormComponent implements OnInit {
       nodoNew.formulacion = formulacion;
       nodoNew.idnumeralcco = idnumeralcco;
       nodoNew.Sk_RCNumeralCambiario = Sk_RCNumeralCambiario;
+      nodoNew.Desc_NodoContablePadre = nodoPadre.name;
+
 
       this.treeControl.expandDescendants(this.nestedNodeMap.get(newItem));
     }
@@ -475,6 +503,7 @@ export class EstructuraFormComponent implements OnInit {
   }
 
   handleDragEnd(event) {
+
     this.dragNode = null;
     this.dragNodeExpandOverNode = null;
     this.dragNodeExpandOverTime = 0;
@@ -497,7 +526,6 @@ export class EstructuraFormComponent implements OnInit {
           if (node.Sk_NodoContable) {
             this.eliminatedNodes.push(node);
           }
-
 
           const nestedNode = this.flatNodeMap.get(node);
           this.deleteChilds(nestedNode);
@@ -543,18 +571,21 @@ export class EstructuraFormComponent implements OnInit {
     let idnumeralcco;
     let Sk_RCNumeralCambiario;
     let Id_NodoContable;
+    let nodeToEdit: ItemFlatNode;
 
     if (CREAR_NODO === accion) {
       descnode = nestedNode.name;
-      idNode = nestedNode.idNode;
+      idNode = this.nodosconfig.reduce((acc, shot) => acc = acc > shot.Id_NodoContable ? acc : shot.Id_NodoContable, 0) + 1;
     } else if (EDITAR_NODO === accion) {
       let nodo = this.nodosconfig.find(n => n.name == node.name && n.Id_NodoContable == n.Id_NodoContable);
 
+      nodeToEdit = { ...nodo }
+      //console.log(nodo.formulacion);
       descnode = nodo.name;
       idNode = nodo.Id_NodoContable;
       hijos = this.getChildren(nestedNode);
       if (nodo.formulacion && nodo.formulacion.length > 0) {
-        formulacion = nodo.formulacion;
+          formulacion = nodo.formulacion
       } else {
         formulacion = [];
       }
@@ -567,8 +598,14 @@ export class EstructuraFormComponent implements OnInit {
     this._dialogService.open(NodeFormComponent, {
       width: '50%',
       data: {
-        Desc_NodoContable: descnode, Id_NodoContable: Id_NodoContable, childs: hijos, formulacion: formulacion,
-        idnumeralcco: idnumeralcco, Sk_RCNumeralCambiario: Sk_RCNumeralCambiario, accionEstructura: accion,
+        NodoToEdit: nodeToEdit,
+        Desc_NodoContable: descnode,
+        Id_NodoContable: idNode,
+        childs: hijos,
+        formulacion: formulacion,
+        idnumeralcco: idnumeralcco,
+        Sk_RCNumeralCambiario: Sk_RCNumeralCambiario,
+        accionEstructura: accion,
         Nodos: this.nodosconfig
       }
     }).afterClosed().subscribe(result => {
@@ -579,7 +616,7 @@ export class EstructuraFormComponent implements OnInit {
         this.Sk_RCNumeralCambiario = result ? result.Sk_RCNumeralCambiario : this.Sk_RCNumeralCambiario;
         this.idnumeralcco = result ? result.idnumeralcco : this.idnumeralcco;
         this.formulacion = result ? result.formulacion : this.formulacion;
-
+        
 
         let nivel = this.getLevel(node);
         let nodoconfig: ItemFlatNode = {
@@ -665,9 +702,11 @@ export class EstructuraFormComponent implements OnInit {
 
 
   ngOnInit(): void {
+
     this._route.url.subscribe((url: any) => {
       this.action = (url.length > 2 ? url[2].path : 'add');
     });
+
     this._route.params.subscribe((params: { Id_Estructura: number, Desc_Estructura: string }) => {
       this.Id_Estructura = params.Id_Estructura;
       this.Desc_Estructura = params.Desc_Estructura;
@@ -677,6 +716,12 @@ export class EstructuraFormComponent implements OnInit {
     });
   }
 
+  loadFakeData() {
+    const data = this.buildNodeTree(TREE_DATA);
+    this.nodosconfig = TREE_DATA;
+    this.database.dataChange.next(data);
+
+  }
   async load(): Promise<void> {
     try {
       this._loadingService.register('estructura.form');
@@ -698,14 +743,9 @@ export class EstructuraFormComponent implements OnInit {
       this.database.dataChange.next(data);
 
     } catch (error) {
-      console.log(error);
-      /*
-      const data = this.buildNodeTree(TREE_DATA);
-
-      this.nodosconfig = TREE_DATA;
-      this.database.dataChange.next(data);
-*/
+      // console.log(error);
       this._dialogService.openAlert({ message: 'Ocurrió error cargando la estructura', closeButton: 'Aceptar' });
+      this.goBack();
     } finally {
       this.Cb_EsDefinitiva == 'S' ? this.Cb_EsDefinitiva2 = true : this.Cb_EsDefinitiva2 = false;
       this._loadingService.resolve('estructura.form');
@@ -714,47 +754,109 @@ export class EstructuraFormComponent implements OnInit {
     }
   }
 
+  prepareData() {
+    this.Cb_EsDefinitiva2 == true ? this.Cb_EsDefinitiva = 'S' : this.Cb_EsDefinitiva = 'N';
+
+    if (sessionStorage.getItem('Menus')) {
+      this.Nombre_UsuarioCreacion = this._cryptoService.decryptText(sessionStorage.getItem('User').toString()).replace(/['"]+/g, '');
+      this.expandedNodes = [];
+
+      this.dataSource._flattenedData.forEach(n => {
+        n.forEach((h, index) => {
+
+          let node: ItemFlatNode = {
+            name: h.name,
+            Id_NodoContable: h.Id_NodoContable,
+            Id_NodoContablePadre: h.Id_NodoContablePadre,
+            childs: null,
+            formulacion: h.formulacion,
+            idnumeralcco: h.idnumeralcco,
+            Sk_RCNumeralCambiario: h.Sk_RCNumeralCambiario,
+            level: h.level,
+            Desc_NodoContablePadre: h.Desc_NodoContablePadre,
+            orden: index
+          };
+          this.expandedNodes.push(node);
+        });
+      });
+
+      if (this.action === 'add') {
+        this.estructura = {
+          Id_Estructura: this.Id_Estructura,
+          Cb_Eliminado: 'N',
+          Cb_EsDefinitiva: this.Cb_EsDefinitiva,
+          Desc_Estructura: this.Desc_Estructura,
+          Fecha_Creacion: null,
+          Fecha_FinVigencia: this.Fecha_FinVigencia,
+          Fecha_InicioVigencia: this.Fecha_InicioVigencia,
+          Nombre_UsuarioCreacion: this.Nombre_UsuarioCreacion,
+          Nombre_UsuarioEliminacion: null,
+          Nodos: this.expandedNodes
+        }
+
+
+      } else {
+        this.estructura = {
+          Id_Estructura: this.Id_Estructura,
+          Cb_Eliminado: this.Cb_Eliminado,
+          Cb_EsDefinitiva: this.Cb_EsDefinitiva,
+          Desc_Estructura: this.Desc_Estructura,
+          Fecha_Creacion: this.Fecha_Creacion,
+          Fecha_FinVigencia: this.Fecha_FinVigencia,
+          Fecha_InicioVigencia: this.Fecha_InicioVigencia,
+          Nombre_UsuarioCreacion: this.Nombre_UsuarioCreacion,
+          Nombre_UsuarioEliminacion: this.Nombre_UsuarioEliminacion,
+          Nodos: this.expandedNodes
+        }
+        this.estructura.NodosEliminados = this.eliminatedNodes;
+
+      }
+
+    }
+
+    this.levelInfo = [];
+
+    this.estructura.Nodos.forEach(a => {
+      if (a.level > 0) {
+        let index = this.indexOfLevel(a.level, this.levelInfo);
+        if (index >= 0) {
+          this.levelInfo[index] = { level: a.level, count: this.levelInfo[index].count + 1 };
+        } else {
+          this.levelInfo.push({ level: a.level, count: 1 });
+        }
+      }
+
+    });
+
+  }
+
+  indexOfLevel(level, arrayInfo: any[]): number {
+
+    let index = -1;
+
+    if (arrayInfo.length > 0) {
+      for (let i = 0; i < arrayInfo.length; i++) {
+        if (arrayInfo[i].level == level) {
+          index = i;
+          break;
+        }
+      }
+    }
+
+    return index;
+
+  }
   async save(): Promise<void> {
     try {
       this._loadingService.register('estructura.form');
-      this.Cb_EsDefinitiva2 == true ? this.Cb_EsDefinitiva = 'S' : this.Cb_EsDefinitiva = 'N';
 
       if (sessionStorage.getItem('Menus')) {
-        this.Nombre_UsuarioCreacion = this._cryptoService.decryptText(sessionStorage.getItem('User').toString()).replace(/['"]+/g, '');
-        this.expandedNodes = [];
 
-        this.dataSource._flattenedData.forEach(n => {
-          n.forEach(h => {
-
-            let node: ItemFlatNode = {
-              name: h.name,
-              Id_NodoContable: h.Id_NodoContable,
-              Id_NodoContablePadre: h.Id_NodoContablePadre,
-              childs: null,
-              formulacion: h.formulacion,
-              idnumeralcco: h.idnumeralcco,
-              Sk_RCNumeralCambiario: h.Sk_RCNumeralCambiario,
-              level: h.level,
-              Desc_NodoContablePadre: h.Desc_NodoContablePadre
-            };
-            this.expandedNodes.push(node);
-          });
-        });
 
         if (this.action === 'add') {
-          this.estructura = {
-            Id_Estructura: this.Id_Estructura,
-            Cb_Eliminado: 'N',
-            Cb_EsDefinitiva: this.Cb_EsDefinitiva,
-            Desc_Estructura: this.Desc_Estructura,
-            Fecha_Creacion: null,
-            Fecha_FinVigencia: this.Fecha_FinVigencia,
-            Fecha_InicioVigencia: this.Fecha_InicioVigencia,
-            Nombre_UsuarioCreacion: this.Nombre_UsuarioCreacion,
-            Nombre_UsuarioEliminacion: null,
-            Nodos: this.expandedNodes
-          }
+
           if (this.estructura.Nodos && this.estructura.Nodos.length > 1) {
+            console.log(this.estructura);
             let resultPost = await this._estructuraService.postCreateEstructura(this.estructura).toPromise();
 
             if (resultPost < 0) {
@@ -770,30 +872,20 @@ export class EstructuraFormComponent implements OnInit {
           } else {
             this._snackBarService.open('Debe agregar al menos un nodo a la estructura', 'Ok', { duration: 2000 });
           }
+
           //console.log(this.estructura);
 
         } else {
-          this.estructura = {
-            Id_Estructura: this.Id_Estructura,
-            Cb_Eliminado: this.Cb_Eliminado,
-            Cb_EsDefinitiva: this.Cb_EsDefinitiva,
-            Desc_Estructura: this.Desc_Estructura,
-            Fecha_Creacion: this.Fecha_Creacion,
-            Fecha_FinVigencia: this.Fecha_FinVigencia,
-            Fecha_InicioVigencia: this.Fecha_InicioVigencia,
-            Nombre_UsuarioCreacion: this.Nombre_UsuarioCreacion,
-            Nombre_UsuarioEliminacion: this.Nombre_UsuarioEliminacion,
-            Nodos: this.expandedNodes
-          }
-          this.estructura.NodosEliminados = this.eliminatedNodes;
-          //console.log(this.estructura);
           if (this.estructura.Nodos && this.estructura.Nodos.length > 1) {
-            let resultPUT = await this._estructuraService.putUpdateEstructura(this.Id_Estructura, this.estructura).toPromise();
-
+            console.log(this.estructura);
+            let resultPUT =  await this._estructuraService.putUpdateEstructura(this.Id_Estructura, this.estructura).toPromise();
+        
             if (resultPUT < 0) {
               this._snackBarService.open('Error guardando estructura guardada', 'Ok', { duration: 2000 });
             } else if (resultPUT == 99) {
               this._snackBarService.open('Ya existe una estructura con el nombre: ' + this.estructura.Desc_Estructura + ", en la base de datos", 'Ok', { duration: 2000 });
+            } else if (resultPUT == 98) {
+              this._snackBarService.open('La Estructura no se puede editar, no es el usuario que la creo', 'Ok', { duration: 4000 });
             } else {
               this._snackBarService.open('Estructura guardada', 'Ok', { duration: 2000 });
               this.goBack();
@@ -808,7 +900,7 @@ export class EstructuraFormComponent implements OnInit {
       }
 
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       this._dialogService.openAlert({ message: 'Error creando/editando la Estructura', closeButton: 'Aceptar' });
     } finally {
       this._loadingService.resolve('estructura.form');
@@ -859,7 +951,7 @@ export class EstructuraFormComponent implements OnInit {
       let nestedNode = this.dataSource.data[0];
       this.database.updateItem(nestedNode, 'Estructura: ' + this.Desc_Estructura)
     }
-    this.stateStep1 = (this.stateStep1 === StepState.Complete ? StepState.Required : StepState.Complete);
+    this.stateStep1 = (this.stateStep1 === StepState.Complete ? StepState.None : StepState.Complete);
   }
 
   toggleCompleteStep2(): void {
@@ -868,5 +960,9 @@ export class EstructuraFormComponent implements OnInit {
 
   toggleCompleteStep3(): void {
     this.stateStep3 = (this.stateStep3 === StepState.Complete ? StepState.None : StepState.Complete);
+  }
+
+  toggleCompleteStep4(): void {
+    this.stateStep4 = (this.stateStep4 === StepState.Complete ? StepState.None : StepState.Complete);
   }
 }

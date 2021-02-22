@@ -7,9 +7,17 @@
       "Filter": null,
       "Childs": [
         {
-          "Name": "Administrar de Estructura",
+          "Name": "Configurar agregacion de numeral",
           "Order": 1,
           "Path": "/estructura",
+          "Text": "build",
+          "Filter": null,
+          "Childs": []
+        },
+        {
+          "Name": "Ejecución y calculo Agregación de Numerales",
+          "Order": 1,
+          "Path": "/consultas",
           "Text": "build",
           "Filter": null,
           "Childs": []

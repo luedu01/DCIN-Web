@@ -29,10 +29,13 @@
     "@covalent/markdown": "^3.0.1",
     "crypto-js": "^4.0.0",
     "echarts": "^4.2.1",
+    "mat-select-filter": "^2.3.7",
+    "mat-table-exporter": "^9.0.2",
     "mat-table-filter": "^9.0.1",
     "ng-material-treetable": "^0.5.5",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
+    "xlsx": "^0.16.8",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {

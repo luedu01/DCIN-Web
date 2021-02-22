@@ -60,7 +60,7 @@ export class EstructuraComponent implements OnInit {
       this._loadingService.register('estructuras.list');
       this.isLoading = true;
       this.estructuras = await this._estructuraService.getEstructuras().toPromise();
-      //console.log(this.estructuras);
+      
     } catch (error) {
       console.log(error);
     } finally {
@@ -106,6 +106,8 @@ export class EstructuraComponent implements OnInit {
 
       if (sessionStorage.getItem('Menus')) {
         let Nombre_UsuarioEliminacion = this._cryptoService.decryptText(sessionStorage.getItem('User').toString()).replace(/['"]+/g, '');
+        let perfil = this._cryptoService.decryptText(sessionStorage.getItem('perfil').toString()).replace(/['"]+/g, '');
+        
         let estructura = {
           Id_Estructura: estructuras[0].Id_Estructura,
           Cb_Eliminado: 'S',
@@ -114,13 +116,18 @@ export class EstructuraComponent implements OnInit {
           Fecha_Creacion: estructuras[0].Fecha_Creacion,
           Fecha_FinVigencia: estructuras[0].Fecha_FinVigencia,
           Fecha_InicioVigencia: estructuras[0].Fecha_InicioVigencia,
-          Nombre_UsuarioCreacion: estructuras[0].Nombre_UsuarioCreacion,
+          Nombre_UsuarioCreacion: Nombre_UsuarioEliminacion,
           Nombre_UsuarioEliminacion: Nombre_UsuarioEliminacion,
-          Nodos: null
+          Nodos: null,
+          perfil: perfil
         }
-
-        await this._estructuraService.putUpdateEstructura(Id_Estructura, estructura).toPromise();
-        this.estructuras = this.estructuras.filter((estructuras: IEstructura) => {
+      
+        let resultPut = await this._estructuraService.putUpdateEstructura(Id_Estructura, estructura).toPromise();
+        if (resultPut < 0) {
+          this._snackBarService.open('Error guardando estructura guardada', 'Ok', { duration: 2000 });
+        }  else if (resultPut == 98) {
+          this._snackBarService.open('La Estructura no se puede eliminar, no es el usuario que la creo' ,'Ok', { duration: 4000 });
+        }else{  this.estructuras = this.estructuras.filter((estructuras: IEstructura) => {
           return estructuras.Id_Estructura !== Id_Estructura;
         });
         this.filteredEstructuras = this.filteredEstructuras.filter((estructura: IEstructura) => {
@@ -128,7 +135,8 @@ export class EstructuraComponent implements OnInit {
         });
         this.dataSource = new MatTableDataSource(this.filteredEstructuras);
         this._changeDetectorRef.detectChanges();
-        this._snackBarService.open('Estructura Eliminada', 'Ok', { duration: 2000 });
+        this._snackBarService.open('Estructura Eliminada', 'Ok', { duration: 2000 });}
+      
       } else {
         this._dialogService.openAlert({ message: 'Ocurrió un error eliminando la estructura: Usuario No autorizado', closeButton: 'Aceptar' });
       }
@@ -140,5 +148,20 @@ export class EstructuraComponent implements OnInit {
     }
   }
 
+  applyFilter(data: Estructura, filter: any) {
 
+    let filters = Object.getOwnPropertyNames(filter);
+    let isMatch = true;
+
+    filters.forEach(element => {
+      let valueProperty = data[element] || "";
+      let type = typeof valueProperty
+      let filterValue = (filter[element] || "") as string
+
+      isMatch = isMatch && ((valueProperty as string).toLowerCase().includes(filterValue));
+
+    });
+
+    return isMatch;
+  }
 }

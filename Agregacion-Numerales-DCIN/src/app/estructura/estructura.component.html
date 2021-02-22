@@ -6,7 +6,11 @@
         <span style="color: white;">Administración de Estructuras</span>
         <span flex></span>
     </div>
-
+    <div td-toolbar-content layout="row" layout-align="right">
+        <span style="color: white;"> Agregación de Numerales - DCIN</span>
+        <span flex></span>
+    </div>
+ 
     <mat-progress-spinner [mode]="'indeterminate'" *ngIf="isLoading" style="margin: auto;">
     </mat-progress-spinner>
     <mat-card class="push-bottom-xxl" tdMediaToggle="gt-xs" [mediaClasses]="['push']">
@@ -16,25 +20,25 @@
         </div>
         <div [hidden]="isLoading">
             <div class="example-container mat-elevation-z8">
-                <mat-table matTableFilter [exampleEntity]="filterEntity" [filterType]="filterType"
+                <mat-table matTableFilter [customPredicate]="applyFilter" [exampleEntity]="filterEntity" [filterType]="filterType"
                     [dataSource]="dataSource" matSort>
                     <ng-container matColumnDef="Desc_Estructura">
-                        <mat-header-cell *matHeaderCellDef mat-sort-header style="color: black;" flex="20">
+                        <mat-header-cell *matHeaderCellDef mat-sort-header style="color: black;" flex="40">
                             <b>
                                 <mat-form-field>
-                                    <input matInput placeholder="Descripción de la estructura"
+                                    <input matInput placeholder="Nombre de la Estructura"
                                         [(ngModel)]="filterEntity.Desc_Estructura">
                                 </mat-form-field>
                             </b>
                         </mat-header-cell>
-                        <mat-cell *matCellDef="let row" flex="20"> {{row.Desc_Estructura}} </mat-cell>
+                        <mat-cell *matCellDef="let row" flex="40"> {{row.Desc_Estructura}} </mat-cell>
                     </ng-container>
 
                     <ng-container matColumnDef="Fecha_InicioVigencia">
                         <mat-header-cell *matHeaderCellDef mat-sort-header style="color: black;" flex="20">
                             <b>
                                 <mat-form-field>
-                                    <input matInput placeholder="Fecha inicio vigencia"
+                                    <input matInput placeholder="Fecha Inicio Vigencia"
                                         [(ngModel)]="filterEntity.Fecha_InicioVigencia">
                                 </mat-form-field>
                             </b>
@@ -47,7 +51,7 @@
                         <mat-header-cell *matHeaderCellDef mat-sort-header style="color: black;" flex="20">
                             <b>
                                 <mat-form-field>
-                                    <input matInput placeholder="Fecha fin vigencia"
+                                    <input matInput placeholder="Fecha Fin Vigencia"
                                         [(ngModel)]="filterEntity.Fecha_FinVigencia">
                                 </mat-form-field>
                             </b>
@@ -60,7 +64,7 @@
                         <mat-header-cell *matHeaderCellDef mat-sort-header style="color: black;" flex="20">
                             <b>
                                 <mat-form-field>
-                                    <input matInput placeholder="Es definitiva"
+                                    <input matInput placeholder="Es Definitiva"
                                         [(ngModel)]="filterEntity.Cb_EsDefinitiva">
                                 </mat-form-field>
                             </b>
@@ -72,7 +76,7 @@
                         <mat-header-cell *matHeaderCellDef mat-sort-header style="color: black;" flex="20">
                             <b>
                                 <mat-form-field>
-                                    <input matInput placeholder="Nombre usuario creación"
+                                    <input matInput placeholder="Nombre Usuario Creación"
                                         [(ngModel)]="filterEntity.Nombre_UsuarioCreacion">
                                 </mat-form-field>
                             </b>
@@ -81,22 +85,22 @@
                     </ng-container>
 
                     <ng-container matColumnDef="Fecha_Creacion">
-                        <mat-header-cell *matHeaderCellDef mat-sort-header style="color: black;" flex="20">
+                        <mat-header-cell *matHeaderCellDef mat-sort-header style="color: black;" flex="10">
                             <b>
                                 <mat-form-field>
-                                    <input matInput placeholder="Fecha creación"
+                                    <input matInput placeholder="Fecha Creación"
                                         [(ngModel)]="filterEntity.Fecha_Creacion">
                                 </mat-form-field>
                             </b>
                         </mat-header-cell>
-                        <mat-cell *matCellDef="let row" flex="20"> {{row.Fecha_Creacion | date:'yyyy-MM-dd'}}
+                        <mat-cell *matCellDef="let row" flex="10"> {{row.Fecha_Creacion | date:'yyyy-MM-dd'}}
                         </mat-cell>
                     </ng-container>
 
                     <ng-container matColumnDef="Editar">
-                        <mat-header-cell *matHeaderCellDef style="color: black;" flex="10"><b>Editar</b>
+                        <mat-header-cell *matHeaderCellDef style="color: black;" flex="5"><b>Editar</b>
                         </mat-header-cell>
-                        <mat-cell *matCellDef="let row" flex="10">
+                        <mat-cell *matCellDef="let row" flex="5">
                             <button mat-icon-button color="blue"
                                 [routerLink]="[row.Id_Estructura, row.Desc_Estructura, 'edit']"
                                 [disabled]="row.Cb_EsDefinitiva=='S'">
@@ -107,10 +111,10 @@
                     </ng-container>
 
                     <ng-container matColumnDef="Eliminar">
-                        <mat-header-cell *matHeaderCellDef style="color: black;" flex="10"><b>Eliminar</b>
+                        <mat-header-cell *matHeaderCellDef style="color: black;" flex="5"><b>Eliminar</b>
                         </mat-header-cell>
-                        <mat-cell *matCellDef="let row" flex="10">
-                            <button mat-icon-button color="blue"
+                        <mat-cell *matCellDef="let row" flex="5">
+                            <button mat-icon-button color="blue" [disabled]="row.Cb_EsDefinitiva=='S'"
                                 (click)="delete(row.Id_Estructura, row.Desc_Estructura)">
                                 <mat-icon class="mat-18">delete</mat-icon>
                             </button>
