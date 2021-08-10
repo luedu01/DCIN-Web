@@ -30,6 +30,7 @@ export class LoginComponent {
   ) { }
 
   ngOnInit() {
+    
     this._route.params.subscribe((params: {username: string}) => {
       let usuario = "";
       try{
@@ -61,7 +62,9 @@ export class LoginComponent {
   login(): void {
     this._loadingService.register();
     this.jmenu = {"usr":this.username};
-    this._loginService.GetMenuS3(this.jmenu).subscribe((menus: any) => {
+    
+    // this._loginService.GetMenuS3(this.jmenu).subscribe((menus: any) => {
+    this._loginService.getMenu().subscribe((menus: any) => {
       this.menus2 = menus.menu.Childs;
       let menuCipher = this._cryptoService.encryptText(JSON.stringify(this.menus2));
       let usrCipher = this._cryptoService.encryptText(JSON.stringify(this.username));
@@ -95,7 +98,6 @@ export class LoginComponent {
           this._loadingService.resolve('menus.load');
         }, 750);
       });/*
-
       this._loadingService.register();
       this._dialogService.openAlert({message: 'Usuario sin acceso', closeButton :'Aceptar'});
       this._router.navigate(['error']);

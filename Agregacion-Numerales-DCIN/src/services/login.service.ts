@@ -16,10 +16,16 @@ import {
   TdResponse,
   TdQueryParams,
 } from '@covalent/http';
+const MOCK_API_ ="Http://localhost:44365/Api";
+export class Usuario{
+  usuario: string;
+}
+
 
 @Injectable()
 export class LoginService extends mixinHttp(class {
     list : Menu[];
+    user:any;
 }, {
 
   baseUrl: MOCK_API,
@@ -33,6 +39,35 @@ export class LoginService extends mixinHttp(class {
     });
   }
 
+  /*public PostAutentica(user_: Usuario): Observable<any> 
+  {
+    //var usuario = user.usuario;
+   
+    let body = JSON.stringify(user_);
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'});
+    let options = { headers: headers };
+    console.log("El servicio api usuario = "+user_.usuario);
+    this.ruta = MOCK_API_+"/Autentica";
+    console.log("El servicio api ruta = "+this.ruta);
+    //console.log("El servicio api con ruta completa = "+URL_BASE+ `?usuario=`+user.usuario);
+    return  this.http.get<string>(this.ruta+ `?usuario=`+user_.usuario);      
+
+  }  
+*/
+
+  //Home/Login
+/*  getLogin(user:any){
+    console.log("Ingresando getLogin "+user)
+    return this.http.get(MOCK_API_+"/Autentica/"+user).pipe(
+      map((res: Response) => {
+        console.log("Repondiendo login");
+        return this.user = res;
+      }),
+    );
+  }
+  */
+ 
   getMenu(): Observable<any> {
     return this.http.get("data/menu.json").pipe(
       map((res: Response) => {
@@ -41,7 +76,8 @@ export class LoginService extends mixinHttp(class {
     );
   }
 
-  GetMenuS3(usr: any){
+  GetMenuS3(usr: any): Observable<any>{
+
     return this.http.post(MOCK_API+"/MenuS3", usr).pipe(
       map((res: Response) => {
         return res;

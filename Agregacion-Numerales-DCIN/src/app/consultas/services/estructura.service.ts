@@ -8,6 +8,7 @@ import {
 } from '@covalent/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Usuario } from 'services/login.service';
 
 const URL_BASE = MOCK_API + '/RC_EstructuraAgregacionNumerales';
 
@@ -30,11 +31,5 @@ baseHeaders: new HttpHeaders({ 'Accept': 'application/json' }),
     });
   }
 
-  getEstructura(): Observable<any> {
-    return this.http.get(URL_BASE).pipe(
-      map((res: Response) => {
-        return res;
-      }),
-    );
-  }
+
 }

@@ -1,9 +1,14 @@
 import { MOCK_API } from './../config/api.config';
 import { MatTableModule } from '@angular/material/table';
+
+import { MatSortModule } from '@angular/material/sort';
+import { MatPaginatorModule } from '@angular/material/paginator';
+
+
 import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule , ReactiveFormsModule} from '@angular/forms';
 import { BrowserModule, Title }  from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -52,6 +57,9 @@ import { HomeComponent } from './home/home.component';
 import { ESTRUCTURA_API, ESTRUCTURA_PROVIDER } from './estructura';
 import { NUMERALES_API, NUMERALES_PROVIDER} from  './services/numeralcambiario.service'
 import { ErrorComponent } from './error/error.component';
+import { FrmloginComponent } from './frmlogin/frmlogin.component';
+
+
 
 const httpInterceptorProviders: Type<ITdHttpInterceptor>[] = [
   RequestInterceptor,
@@ -68,6 +76,7 @@ export function getAPI(): string {
     LoginComponent,
     HomeComponent,
     ErrorComponent,
+    FrmloginComponent,
   ],
   imports: [
     // angular modules
@@ -88,8 +97,11 @@ export function getAPI(): string {
     MatSnackBarModule,
     MatTableFilterModule,
     MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
     MatTableExporterModule,
-    
+    BrowserAnimationsModule,
+    BrowserModule,    
     // covalent modules
     CovalentCommonModule,
     CovalentLayoutModule,
@@ -107,6 +119,18 @@ export function getAPI(): string {
     CovalentBreadcrumbsModule,
     //echarts
     CovalentBaseEchartsModule,
+    ReactiveFormsModule,
+    BrowserModule,
+    AppRoutingModule,
+    MatMenuModule,
+    BrowserAnimationsModule,
+    MatIconModule,
+    FormsModule,
+     ReactiveFormsModule,
+     MatCardModule,
+     ReactiveFormsModule,
+     HttpClientModule,
+
     CovalentHttpModule.forRoot({
       interceptors: [{
         interceptor: RequestInterceptor, paths: ['**'],

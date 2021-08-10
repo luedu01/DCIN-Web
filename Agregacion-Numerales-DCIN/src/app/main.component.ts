@@ -26,20 +26,25 @@ export class MainComponent implements OnInit{
   ngOnInit() {
     
     if (sessionStorage.getItem('Menus')){
+      
       var mcipher = this._cryptoService.decryptText(sessionStorage.getItem('Menus'));
       this.user = this._cryptoService.decryptText(sessionStorage.getItem('User').toString()).replace(/['"]+/g, '');
+      
       var json = JSON.parse(mcipher.toString());
       this.menus = json;
-
+      
       var perfilcipher = this._cryptoService.decryptText(sessionStorage.getItem('perfil'));
       var perfilDec = JSON.parse(perfilcipher.toString());
       this.perfil = perfilDec;
-
+     
     }else{
-      sessionStorage.removeItem('Menus');
-      sessionStorage.removeItem('User');
-      sessionStorage.clear();
-      this._router.navigate(['/error']);
+      
+       this._router.navigate(['/frmlogin']);
+      /*
+       sessionStorage.removeItem('Menus');
+       sessionStorage.removeItem('User');
+       sessionStorage.clear();
+       */
     }
   }
 
